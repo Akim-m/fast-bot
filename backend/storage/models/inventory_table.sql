@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS inventory (
+    item_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    item_name TEXT NOT NULL,
+    quantity INTEGER DEFAULT 0
+);
