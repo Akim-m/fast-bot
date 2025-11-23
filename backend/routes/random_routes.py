@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from app.services.random_service import generate_random_number
-from app.schemas import RandomNumberOut
+from services.random_service import generate_random_number
+from schemas import RandomNumberOut
 
 router = APIRouter(prefix="/random", tags=["Random"])
 

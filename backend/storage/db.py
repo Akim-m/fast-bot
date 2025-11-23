@@ -1,8 +1,10 @@
 import sqlite3
 import os
-from sqlalchemy import create_engine
+from typing import List, Dict
+from sqlalchemy import create_engine, Table, MetaData, select
 from sqlalchemy.orm import sessionmaker
-from app.storage.models import Base
+from fastapi import HTTPException
+from storage.models import Base
 
 DB_FILE = "storage/app.db"
 SQL_FOLDER = "storage/models"
@@ -15,7 +17,7 @@ def get_sqlite_connection():
     return conn
 
 def initialize_database():
-    sql_files = ["table.sql", "inventory_table.sql"]
+    sql_files = ["table.sql", "inventory_table.sql","table_backup.sql", "inventory_table_backup.sql"]
 
     conn = get_sqlite_connection()
     cursor = conn.cursor()
@@ -37,5 +39,22 @@ def get_db():
     db = SessionLocal()
     try:
         yield db
+    finally:
+        db.close()
+
+metadata = MetaData()
+
+def get_table_data(table_name: str) -> List[Dict]:
+
+    try:
+        table = Table(table_name, metadata, autoload_with=engine)
+    except Exception:
+        raise HTTPException(status_code=404, detail=f"Table '{table_name}' not found")
+
+    db = SessionLocal()
+    try:
+        result = db.execute(select(table))
+        rows = [dict(row) for row in result.fetchall()]
+        return rows
     finally:
         db.close()
